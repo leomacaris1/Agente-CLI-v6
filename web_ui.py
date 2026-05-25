@@ -9,11 +9,12 @@ def responder(mensaje):
         respuesta = agent.talk(mensaje)
         return respuesta
     except Exception as e:
+        print(f"❌ Error: {e}")
         return f"❌ Error: {str(e)}"
 
-with gr.Blocks(title="Agente CLI v5") as demo:
-    gr.Markdown("# 🦅 Agente CLI v5")
-    gr.Markdown("Sistema multiagente + Negocio digital")
+with gr.Blocks(title="Agente CLI v6") as demo:
+    gr.Markdown("# 🦅 Agente CLI v6")
+    gr.Markdown("Sistema multiagente + Negocio digital autónomo")
     
     chatbot = gr.Chatbot(height=400)
     msg = gr.Textbox(label="Mensaje", placeholder="/agents, /init-business...")

@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-# subagents.py
-=======
-# subagents.py — Registry de sub-agentes especializados con Tool Calling
+# subagents.py — Agent CLI v6 Registry
 from typing import Dict, List, Callable, Optional
 from dataclasses import dataclass
 
@@ -12,8 +9,6 @@ class SubAgent:
     tools: List[str]
     handler: Callable
     keywords: List[str]
-    priority: int = 0
-    native_tools: List[str] = None
 
 class SubAgentRegistry:
     def __init__(self, main_agent):
@@ -22,130 +17,84 @@ class SubAgentRegistry:
         self._register_defaults()
     
     def _register_defaults(self):
-
-        self.register("auditor", "Analiza código y seguridad", ["read_file", "run_command"], self.main.audit_project, ["auditar", "vulnerabilidad", "seguridad"])
-        self.register("coder", "Genera código TypeScript/React", ["write_file", "read_file"], self.main.generate_code_task, ["generar", "crear", "componente"])
-        self.register("researcher", "Busca documentación", ["web_search"], self.main.scrape_docs, ["buscar", "documentación", "docs"])
-        self.register("deps", "Gestiona dependencias npm", ["run_command"], self.main.install_dependencies, ["npm", "instalar", "dependencias"])
-        self.register("deployer", "Deploy en Vercel/Netlify", ["write_file"], self.main.deploy_project, ["deploy", "vercel", "subir"])
-        self.register("debugger", "Debugging asistido", ["read_file"], self.main.debug_code, ["error", "bug", "falla"])
-        self.register("documenter", "Documentación automática", ["write_file"], self.main.document_project, ["documentar", "readme"])
-    
-    def register(self, name, description, tools, handler, keywords):
-        self.agents[name] = SubAgent(name, description, tools, handler, keywords)
-
+        # 1. Auditor
         self.register("auditor",
             description="Analiza código, dependencias y seguridad",
             tools=["read_file", "run_command", "audit_dependencies"],
             handler=self.main.audit_project,
-            keywords=["auditar", "vulnerabilidad", "seguridad", "dependencia", "npm audit"],
-            priority=1,
-            native_tools=["read_file", "list_directory", "run_command", "audit_project"]
+            keywords=["auditar", "vulnerabilidad", "seguridad", "dependencia", "npm audit", "análisis"]
         )
+        # 2. Coder
         self.register("coder",
             description="Genera componentes, funciones, hooks con TypeScript/React",
             tools=["read_file", "write_file", "run_command"],
             handler=self.main.generate_code_task,
-            keywords=["generar", "crear", "componente", "función", "hook", "código", "archivo", "módulo"],
-            priority=2,
-            native_tools=["read_file", "write_file", "generate_code", "list_directory"]
+            keywords=["generar", "crear", "componente", "función", "hook", "código", "implementar"]
         )
+        # 3. Researcher
         self.register("researcher",
             description="Busca documentación, tendencias y mejores prácticas",
             tools=["web_search", "scrape_docs", "write_file"],
-            handler=self.main._scrape_docs,
-            keywords=["buscar", "documentación", "tendencia", "mejor práctica", "docs", "investigar"],
-            priority=3,
-            native_tools=["search_web", "write_file", "read_file"]
+            handler=self.main.scrape_docs,
+            keywords=["buscar", "documentación", "tendencia", "mejor práctica", "docs", "cómo"]
         )
+        # 4. Deps Manager
         self.register("deps",
-            description="Instala, actualiza y audita dependencias npm/yarn",
+            description="Instala, actualiza y audita dependencias npm/yarn/pnpm",
             tools=["run_command", "audit_dependencies"],
             handler=self.main.install_dependencies,
-            keywords=["instalar", "npm", "yarn", "dependencia", "actualizar", "package.json", "pnpm"],
-            priority=4,
-            native_tools=["run_command", "install_dependencies", "read_file"]
+            keywords=["instalar", "npm", "yarn", "pnpm", "dependencia", "actualizar", "package.json"]
         )
+        # 5. Deployer
         self.register("deployer",
             description="Configura despliegue en Vercel, Netlify o GitHub Pages",
             tools=["read_file", "write_file", "run_command"],
-            handler=self.main.deploy_preview,
-            keywords=["desplegar", "deploy", "vercel", "netlify", "preview", "producción", "build"],
-            priority=5,
-            native_tools=["read_file", "write_file", "run_command"]
+            handler=self.main.deploy_project,
+            keywords=["desplegar", "deploy", "vercel", "netlify", "preview", "producción", "subir"]
         )
+        # 6. Debugger
         self.register("debugger",
-            description="Ayuda a debuggear errores y problemas en el código",
-            tools=["read_file", "run_command", "write_file"],
-            handler=self.main._debug_task,
-            keywords=["error", "bug", "debug", "falla", "problema", "no funciona", "crash"],
-            priority=6,
-            native_tools=["read_file", "run_command", "write_file", "list_directory"]
+            description="Ayuda a encontrar y corregir errores en el código",
+            tools=["read_file", "run_command"],
+            handler=self.main.debug_code,
+            keywords=["error", "bug", "buggy", "falla", "debug", "arreglar", "fix error", "no funciona"]
         )
+        # 7. Documenter
         self.register("documenter",
-            description="Genera documentación, READMEs y comentarios",
+            description="Genera documentación automática (README, comentarios)",
             tools=["read_file", "write_file"],
-            handler=self.main._document_task,
-            keywords=["documentar", "readme", "comentarios", "doc", "instrucciones"],
-            priority=7,
-            native_tools=["read_file", "write_file", "list_directory"]
+            handler=self.main.document_project,
+            keywords=["documentar", "readme", "comentarios", "explicar", "documentación"]
         )
     
-    def register(self, name: str, description: str, tools: List[str], handler: Callable, keywords: List[str], priority: int = 0, native_tools: List[str] = None):
-        self.agents[name] = SubAgent(name, description, tools, handler, keywords, priority, native_tools or [])
+    def register(self, name: str, description: str, tools: List[str], handler: Callable, keywords: List[str]):
+        self.agents[name] = SubAgent(name, description, tools, handler, keywords)
     
     def select_agent(self, task: str) -> Optional[SubAgent]:
         task_lower = task.lower()
         matches = []
+        
         for agent in self.agents.values():
-
             score = sum(1 for kw in agent.keywords if kw in task_lower)
             if score > 0:
                 matches.append((agent, score))
+        
         matches.sort(key=lambda x: x[1], reverse=True)
         return matches[0][0] if matches else None
-
-            match_count = sum(1 for kw in agent.keywords if kw in task_lower)
-            if match_count > 0:
-                matches.append((match_count, -agent.priority, agent))
-        if matches:
-            matches.sort(key=lambda x: (-x[0], x[1]))
-            return matches[0][2]
-        return None
     
     def delegate(self, task: str, agent_name: Optional[str] = None, **kwargs) -> str:
         if agent_name and agent_name in self.agents:
             agent = self.agents[agent_name]
-            print(f"🤖 Delegando a {agent.name}: {task}")
             return agent.handler(task=task, **kwargs)
+        
         agent = self.select_agent(task)
         if agent:
-
-            return f"🤖 Delegando a {agent.name}: {agent.description}\n\n" + agent.handler(task=task, **kwargs)
+            return f"🤖 **Delegando a {agent.name}:** {agent.description}\n\n" + agent.handler(task=task, **kwargs)
+        
         return self.main.talk(task)
     
     def list_agents(self) -> str:
-        lines = ["🤖 **Sub-Agentes:**\n"]
+        lines = ["🤖 **Sub-Agentes Disponibles:**\n"]
         for name, agent in self.agents.items():
             lines.append(f"**{name}**: {agent.description}")
         return "\n".join(lines)
-
-            print(f"🤖 Auto-delegando a {agent.name}: {task}")
-            return agent.handler(task=task, **kwargs)
-        return f"🤔 No encontré un sub-agente específico para: '{task}'\n\n" + self.main.talk(task)
-    
-    def list_agents(self) -> str:
-        lines = ["🤖 **Sub-Agentes disponibles**:\n"]
-        for name, agent in sorted(self.agents.items(), key=lambda x: x[1].priority):
-            lines.append(f"### `{name}`")
-            lines.append(f"{agent.description}")
-            lines.append(f"🔧 Herramientas: `{', '.join(agent.tools)}`")
-            if agent.native_tools:
-                lines.append(f"⚡ Native Tools: `{', '.join(agent.native_tools[:5])}`")
-            lines.append(f"🎯 Keywords: `{', '.join(agent.keywords[:5])}`\n")
-        return "\n".join(lines)
-    
-    def get_agent_tools(self, agent_name: str) -> List[str]:
-        if agent_name in self.agents:
-            return self.agents[agent_name].native_tools
-        return []
