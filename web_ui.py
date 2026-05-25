@@ -7,6 +7,7 @@ def responder(mensaje):
     try:
         print(f"📩 Recibido: {mensaje}")
         respuesta = agent.talk(mensaje)
+        print(f"✅ Respondido")
         return respuesta
     except Exception as e:
         print(f"❌ Error: {e}")

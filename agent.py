@@ -1,11 +1,11 @@
-# agent.py — Agent CLI v5 + Negocio Digital Autónomo
+# agent.py — Agent CLI v6
 import os
 import subprocess
 import json
 import requests
 from pathlib import Path
 from datetime import datetime
-from typing import Optional, List, Dict
+from typing import Optional, List
 from urllib.parse import quote
 
 from openai import OpenAI
@@ -55,7 +55,6 @@ class Agent:
         except: 
             pass
 
-    # === Herramientas Básicas ===
     def _list_dir(self, path="."):
         target = self.current_dir / path
         if not target.exists(): return "❌ Ruta no existe"
@@ -87,7 +86,6 @@ class Agent:
             return f"✅ Guardado: {path}"
         except Exception as e: return f"❌ Error: {e}"
 
-    # === Telegram ===
     def _send_telegram(self, msg):
         try:
             token = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -97,7 +95,6 @@ class Agent:
             return "✅ Enviado" if r.status_code == 200 else f"❌ {r.text}"
         except Exception as e: return f"❌ Error Telegram: {e}"
 
-    # === Web Scraping ===
     def scrape_docs(self, topic):
         print(f"📚 Docs: {topic}")
         urls = [f"https://nextjs.org/docs/{quote(topic)}", f"https://react.dev/reference/{quote(topic)}"]
@@ -115,7 +112,6 @@ class Agent:
             return content
         return f"❌ No se encontró docs para '{topic}'"
 
-    # === Funciones de Agentes Especializados ===
     def audit_project(self, task=None):
         print("🚀 Auditoría...")
         self._send_telegram(f"🔍 Auditoría en: {self.current_dir.name}")
@@ -142,7 +138,7 @@ class Agent:
                     for l, c in counts.items(): report.append(f"- {l.upper()}: {c}")
             except: report.append("⚠️ Error en npm audit")
         else: report.append("⚠️ Sin node_modules")
-        report += ["\n---\n*Agent CLI v5*"]
+        report += ["\n---\n*Agent CLI v6*"]
         content = "\n".join(report)
         report_file = self.current_dir / "AUDIT_REPORT.md"
         try:
@@ -218,7 +214,6 @@ Analizá y dale solución."""
             return f"📁 Proyecto: {name}\n📍 {self.current_dir}"
         return f"❌ Proyectos: {', '.join(self.projects.keys())}"
 
-    # === MÓDULO: NEGOCIO DIGITAL AUTÓNOMO ===
     def init_business_project(self):
         print("🚀 Inicializando negocio digital...")
         project_dir = Path.home() / "Desktop" / "Digital-Business"
@@ -414,7 +409,6 @@ Formato:
         result += f"\n✅ Completadas: {len(data.get('completed', []))}"
         return result
 
-    # === Router Principal v5 ===
     def talk(self, user_input):
         if not self.client: return "⚠️ Configurá API_KEY en .env"
         
