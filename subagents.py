@@ -22,7 +22,7 @@ class SubAgentRegistry:
         self._register_defaults()
     
     def _register_defaults(self):
-<<<<<<< HEAD
+
         self.register("auditor", "Analiza código y seguridad", ["read_file", "run_command"], self.main.audit_project, ["auditar", "vulnerabilidad", "seguridad"])
         self.register("coder", "Genera código TypeScript/React", ["write_file", "read_file"], self.main.generate_code_task, ["generar", "crear", "componente"])
         self.register("researcher", "Busca documentación", ["web_search"], self.main.scrape_docs, ["buscar", "documentación", "docs"])
@@ -33,7 +33,7 @@ class SubAgentRegistry:
     
     def register(self, name, description, tools, handler, keywords):
         self.agents[name] = SubAgent(name, description, tools, handler, keywords)
-=======
+
         self.register("auditor",
             description="Analiza código, dependencias y seguridad",
             tools=["read_file", "run_command", "audit_dependencies"],
@@ -98,13 +98,13 @@ class SubAgentRegistry:
         task_lower = task.lower()
         matches = []
         for agent in self.agents.values():
-<<<<<<< HEAD
+
             score = sum(1 for kw in agent.keywords if kw in task_lower)
             if score > 0:
                 matches.append((agent, score))
         matches.sort(key=lambda x: x[1], reverse=True)
         return matches[0][0] if matches else None
-=======
+
             match_count = sum(1 for kw in agent.keywords if kw in task_lower)
             if match_count > 0:
                 matches.append((match_count, -agent.priority, agent))
@@ -120,7 +120,7 @@ class SubAgentRegistry:
             return agent.handler(task=task, **kwargs)
         agent = self.select_agent(task)
         if agent:
-<<<<<<< HEAD
+
             return f"🤖 Delegando a {agent.name}: {agent.description}\n\n" + agent.handler(task=task, **kwargs)
         return self.main.talk(task)
     
@@ -129,7 +129,7 @@ class SubAgentRegistry:
         for name, agent in self.agents.items():
             lines.append(f"**{name}**: {agent.description}")
         return "\n".join(lines)
-=======
+
             print(f"🤖 Auto-delegando a {agent.name}: {task}")
             return agent.handler(task=task, **kwargs)
         return f"🤔 No encontré un sub-agente específico para: '{task}'\n\n" + self.main.talk(task)
