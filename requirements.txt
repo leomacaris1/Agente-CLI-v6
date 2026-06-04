@@ -3,3 +3,4 @@ python-dotenv
 requests
 duckduckgo_search
 beautifulsoup4
+pytest
