@@ -74,7 +74,7 @@ textarea {
 """
 
 
-with gr.Blocks(title="Agente Leo - Operador", css=css) as demo:
+with gr.Blocks(title="Agente Leo - Operador") as demo:
     gr.Markdown(
         """
 <div class="leo-header">
@@ -170,4 +170,4 @@ with gr.Blocks(title="Agente Leo - Operador", css=css) as demo:
 
 
 if __name__ == "__main__":
-    demo.launch(server_port=7862)
+    demo.launch(server_port=7862, css=css)

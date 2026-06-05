@@ -354,12 +354,20 @@ class Agent:
             app_package_json = path / "apps" / "web" / "package.json"
             git_dir = path / ".git"
             profile = self.project_profiles.get(name)
-            queued = len(self.work_queue.list_tasks(project=name))
+            project_tasks = self.work_queue.list_tasks(project=name)
+            active = len(
+                [
+                    task
+                    for task in project_tasks
+                    if task.get("status") in {"queued", "needs_approval", "running"}
+                ]
+            )
+            done = len([task for task in project_tasks if task.get("status") == "done"])
             lines.append(
                 f"- {name}: {'ok' if exists else 'no existe'} | "
                 f"git={'si' if git_dir.exists() else 'no'} | "
                 f"package={'si' if package_json.exists() or app_package_json.exists() else 'no'} | "
-                f"tareas={queued} | "
+                f"activas={active} | done={done} | "
                 f"mision={profile.mission if profile else 'sin perfil'}"
             )
         return "\n".join(lines)
