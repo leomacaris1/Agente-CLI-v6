@@ -1,0 +1,18 @@
+# Secrets
+.env
+.env.txt
+
+# Agent runtime state
+.agent_state/
+
+# Python
+__pycache__/
+*.py[cod]
+*.log
+.venv/
+venv/
+
+# Local/editor
+.vscode/
+.DS_Store
+Thumbs.db
